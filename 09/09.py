@@ -1,6 +1,6 @@
 import pprint
 
-with open('test_input.txt', 'r+') as f:
+with open('input.txt', 'r+') as f:
     data = [line.strip('\n').split(',') for line in f.readlines()]
 
 data = [[int(x) for x in d] for d in data]
@@ -46,35 +46,46 @@ if rights > lefts: #going clockwise, so right-candidates are interior
 else: #going counterclockwise, this set are interior
     candidates = left_candidates
     anti = right_candidates
-print(candidates)
+#print(candidates)
 
-width = max(data, key=lambda x: x[0])[0]+2
-#min_x = min(data, key=lambda x: x[0])[0]
-height = max(data, key=lambda x: x[1])[1]+2
-#min_y = min(data, key=lambda x: x[1])[1]-1
-domain = [['.' for i in range(width)] for j in range(height)] 
-
+border = []
 for i in range(len(data)):
     d = data[i]
+    border.append(tuple(d))
     if data[i-1][0] == data[i][0]: #vertical
         for j in range(min(data[i-1][1], data[i][1])+1, max(data[i-1][1], data[i][1])):
-            domain[j][data[i][0]] = 'x'
+            border.append((data[i][0], j))
     if data[i-1][1] == data[i][1]: #horizontal
         for j in range(min(data[i-1][0], data[i][0])+1, max(data[i-1][0], data[i][0])):
-            domain[data[i][1]][j] = 'x'
-    x, y = d
-    domain[y][x] = '#'
-for c in candidates:
-    domain[c[1]][c[0]]= 'c'
-for a in anti:
-    domain[a[1]][a[0]] = 'a'
-pprint.pprint(domain)
+            border.append((j, data[i][1]))
+shell = []
+for i in range(len(anti)):
+    a = anti[i]
+    shell.append(tuple(a))
+    if anti[i-1][0] == anti[i][0]: #vertical
+        for j in range(min(anti[i-1][1], anti[i][1])+1, max(anti[i-1][1], anti[i][1])):
+            shell.append((anti[i][0], j))
+    if anti[i-1][1] == anti[i][1]: #horizontal
+        for j in range(min(anti[i-1][0], anti[i][0])+1, max(anti[i-1][0], anti[i][0])):
+            shell.append((j, anti[i][1]))
+#shell = [s for s in shell if s not in border]
 
 maximum = 0
 for i in range(len(data)):
+    print(i)
     for j in range(i+1, len(data)):
         area = (abs(data[i][0]-data[j][0])+1)*(abs(data[i][1]-data[j][1])+1)
-        conflicts = [a for a in anti if (a[0]-data[i][0])*(a[0]-data[j][0])<0 and (a[1]-data[i][1])*(a[1]-data[j][1])<0]
-        if conflicts == [] and area > maximum:
-            maximum = area
+        if area > maximum:
+            min_x = min(data[i][0], data[j][0])
+            max_x = max(data[i][0], data[j][0])
+            min_y = min(data[i][1], data[j][1])
+            max_y = max(data[i][1], data[j][1])
+            conflicted = False
+            for s in shell:
+                if min_x <= s[0] and s[0] <= max_x and min_y <= s[1] and s[1] <= max_y:
+                    conflicted = True
+                    break
+            if not conflicted:
+                print((i, j), area)
+                maximum = area
 print(maximum)
