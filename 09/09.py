@@ -72,7 +72,7 @@ for i in range(len(anti)):
 
 maximum = 0
 for i in range(len(data)):
-    print(i)
+    #print(i)
     for j in range(i+1, len(data)):
         area = (abs(data[i][0]-data[j][0])+1)*(abs(data[i][1]-data[j][1])+1)
         if area > maximum:
@@ -86,6 +86,6 @@ for i in range(len(data)):
                     conflicted = True
                     break
             if not conflicted:
-                print((i, j), area)
+                #print((i, j), area)
                 maximum = area
 print(maximum)
